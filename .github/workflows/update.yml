@@ -32,3 +32,4 @@ jobs:
             git push
           else
             echo "❌ Dosya bulunamadı, commit yapılmadı"
+          fi
