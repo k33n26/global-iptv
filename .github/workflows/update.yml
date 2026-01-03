@@ -2,15 +2,16 @@ name: Global IPTV Update (Every 8 Hours)
 
 on:
   schedule:
-    - cron: "0 */8 * * *"
-  workflow_dispatch:
+    - cron: "0 */8 * * *"  # Her 8 saatte bir çalışacak
+  workflow_dispatch:          # İstersen manuel de çalıştırabilirsin
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Build Docker image
         run: docker build -t global-iptv .
@@ -27,10 +28,12 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+
           files=""
           [ -f playlist.m3u ] && files="$files playlist.m3u"
           [ -f stats.json ] && files="$files stats.json"
           [ -f diff_stats.json ] && files="$files diff_stats.json"
+
           if [ -n "$files" ]; then
             git add $files
             git diff --cached --quiet || git commit -m "Auto IPTV update (8h + diff)"
