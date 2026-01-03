@@ -101,70 +101,69 @@ while i < len(lines):
 
 if len(playlist) <= 1:
     print("❌ Playlist boş → eski liste korunuyor")
-    exit(0)
+else:
+    print("[3] Dosyalar yazılıyor...")
+    with open(TEMP, "w", encoding="utf-8") as f:
+        f.write("\n".join(playlist))
+    if os.path.exists(OUTPUT):
+        os.replace(OUTPUT, OUTPUT + ".bak")
+    os.replace(TEMP, OUTPUT)
 
-print("[3] Dosyalar yazılıyor...")
-with open(TEMP, "w", encoding="utf-8") as f:
-    f.write("\n".join(playlist))
-if os.path.exists(OUTPUT):
-    os.replace(OUTPUT, OUTPUT + ".bak")
-os.replace(TEMP, OUTPUT)
+    # stats.json yaz
+    with open(STATS, "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "total_channels": stats["total_channels"],
+                "geo_blocked": stats["geo_blocked"],
+                "countries": dict(stats["by_country"]),
+                "categories": dict(stats["by_category"]),
+                "channels_set": list(current_channels)
+            },
+            f,
+            indent=2,
+            ensure_ascii=False
+        )
 
-# stats.json yaz
-with open(STATS, "w", encoding="utf-8") as f:
-    json.dump(
-        {
-            "total_channels": stats["total_channels"],
-            "geo_blocked": stats["geo_blocked"],
-            "countries": dict(stats["by_country"]),
-            "categories": dict(stats["by_category"]),
-            "channels_set": list(current_channels)
-        },
-        f,
-        indent=2,
-        ensure_ascii=False
-    )
+    # diff_stats.json yaz
+    diff = {
+        "run_time": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "added": 0,
+        "removed": 0,
+        "geo_added": 0,
+        "geo_removed": 0,
+        "added_channels": [],
+        "removed_channels": [],
+        "by_country": {},
+        "by_category": {}
+    }
 
-# diff_stats.json yaz
-diff = {
-    "run_time": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
-    "added": 0,
-    "removed": 0,
-    "geo_added": 0,
-    "geo_removed": 0,
-    "added_channels": [],
-    "removed_channels": [],
-    "by_country": {},
-    "by_category": {}
-}
+    if prev_stats:
+        prev_set = set(prev_stats.get("channels_set", []))
+        added = current_channels - prev_set
+        removed = prev_set - current_channels
+        diff["added"] = len(added)
+        diff["removed"] = len(removed)
+        diff["added_channels"] = list(added)
+        diff["removed_channels"] = list(removed)
 
-if prev_stats:
-    prev_set = set(prev_stats.get("channels_set", []))
-    added = current_channels - prev_set
-    removed = prev_set - current_channels
-    diff["added"] = len(added)
-    diff["removed"] = len(removed)
-    diff["added_channels"] = list(added)
-    diff["removed_channels"] = list(removed)
+        diff["geo_added"] = sum(1 for ch in added if "[GEO]" in ch)
+        diff["geo_removed"] = sum(1 for ch in removed if "[GEO]" in ch)
 
-    diff["geo_added"] = sum(1 for ch in added if "[GEO]" in ch)
-    diff["geo_removed"] = sum(1 for ch in removed if "[GEO]" in ch)
+        # ülke farkları
+        diff["by_country"] = {}
+        for c in set(list(stats["by_country"].keys()) + list(prev_stats.get("by_country", {}).keys())):
+            prev_count = prev_stats.get("by_country", {}).get(c, 0)
+            cur_count = stats["by_country"].get(c, 0)
+            diff["by_country"][c] = cur_count - prev_count
 
-    # ülke farkları
-    diff["by_country"] = {}
-    for c in set(list(stats["by_country"].keys()) + list(prev_stats.get("by_country", {}).keys())):
-        prev_count = prev_stats.get("by_country", {}).get(c, 0)
-        cur_count = stats["by_country"].get(c, 0)
-        diff["by_country"][c] = cur_count - prev_count
+        # kategori farkları
+        diff["by_category"] = {}
+        for cat in set(list(stats["by_category"].keys()) + list(prev_stats.get("by_category", {}).keys())):
+            prev_count = prev_stats.get("by_category", {}).get(cat, 0)
+            cur_count = stats["by_category"].get(cat, 0)
+            diff["by_category"][cat] = cur_count - prev_count
 
-    # kategori farkları
-    diff["by_category"] = {}
-    for cat in set(list(stats["by_category"].keys()) + list(prev_stats.get("by_category", {}).keys())):
-        prev_count = prev_stats.get("by_category", {}).get(cat, 0)
-        cur_count = stats["by_category"].get(cat, 0)
-        diff["by_category"][cat] = cur_count - prev_count
+    with open(DIFF, "w", encoding="utf-8") as f:
+        json.dump(diff, f, indent=2, ensure_ascii=False)
 
-with open(DIFF, "w", encoding="utf-8") as f:
-    json.dump(diff, f, indent=2, ensure_ascii=False)
-
-print("✅ playlist.m3u + stats.json + diff_stats.json güncellendi")
+    print("✅ playlist.m3u + stats.json + diff_stats.json güncellendi")
