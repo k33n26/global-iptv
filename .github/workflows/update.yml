@@ -2,7 +2,7 @@ name: Global IPTV Update (Every 8 Hours)
 
 on:
   schedule:
-    - cron: "0 */8 * * *"
+    - cron: "0 */8 * * *"  # 0, 8, 16 UTC → günde 3 kez
   workflow_dispatch:
 
 jobs:
@@ -22,6 +22,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add playlist.m3u stats.json
-          git diff --cached --quiet || git commit -m "Auto update IPTV playlist (8h)"
+          git add playlist.m3u stats.json diff_stats.json
+          git diff --cached --quiet || git commit -m "Auto IPTV update (8h + diff)"
           git push
