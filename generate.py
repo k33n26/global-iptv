@@ -4,12 +4,14 @@ import json
 from collections import defaultdict
 from datetime import datetime
 
+# Ana dizine yazmak için tam path
+BASE_DIR = "/app"  # Docker mount point
 IPTV_URL = "https://raw.githubusercontent.com/iptv-org/iptv/master/streams/iptv.m3u"
 
-OUTPUT = "playlist.m3u"
-TEMP = "playlist.tmp"
-STATS = "stats.json"
-DIFF = "diff_stats.json"
+OUTPUT = os.path.join(BASE_DIR, "playlist.m3u")
+TEMP = os.path.join(BASE_DIR, "playlist.tmp")
+STATS = os.path.join(BASE_DIR, "stats.json")
+DIFF = os.path.join(BASE_DIR, "diff_stats.json")
 
 TIMEOUT = 6
 
