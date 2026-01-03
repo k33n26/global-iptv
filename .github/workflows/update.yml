@@ -2,15 +2,15 @@ name: Global IPTV Update (Every 8 Hours)
 
 on:
   schedule:
-    - cron: "0 */8 * * *"  # Her 8 saatte bir çalışacak
-  workflow_dispatch:          # İstersen manuel de çalıştırabilirsin
+    - cron: "0 */8 * * *"  # Her 8 saatte bir
+  workflow_dispatch:        # Manuel tetikleme
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build Docker image
