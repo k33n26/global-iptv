@@ -34,7 +34,7 @@ jobs:
           if [ -n "$files_to_add" ]; then
             git add $files_to_add
             git diff --cached --quiet || git commit -m "Auto IPTV update (8h + diff)"
-            git push
+            git push origin HEAD
           else
             echo "❌ Dosya bulunamadı, commit yapılmadı"
           fi
