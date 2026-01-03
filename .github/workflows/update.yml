@@ -2,7 +2,7 @@ name: Global IPTV Update (Every 8 Hours)
 
 on:
   schedule:
-    - cron: "0 */8 * * *"  # günde 3 kez
+    - cron: "0 */8 * * *"
   workflow_dispatch:
 
 jobs:
@@ -37,4 +37,3 @@ jobs:
             git push origin HEAD
           else
             echo "❌ No files to commit"
-          fi
