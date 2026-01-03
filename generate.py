@@ -4,8 +4,8 @@ import json
 from collections import defaultdict
 from datetime import datetime
 
-# Ana dizine yazmak için tam path
-BASE_DIR = "/app"  # Docker mount point
+# Docker mount point → ana dizine yazmak için
+BASE_DIR = "/app"
 IPTV_URL = "https://raw.githubusercontent.com/iptv-org/iptv/master/streams/iptv.m3u"
 
 OUTPUT = os.path.join(BASE_DIR, "playlist.m3u")
