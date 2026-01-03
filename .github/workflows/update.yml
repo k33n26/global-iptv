@@ -18,6 +18,11 @@ jobs:
       - name: Run generator
         run: docker run --rm -v ${{ github.workspace }}:/app global-iptv
 
+      - name: Show generated playlist (first 20 lines)
+        run: |
+          echo "Playlist preview:"
+          head -n 20 playlist.m3u || echo "Dosya bulunamadı"
+
       - name: Commit & Push safely
         run: |
           git config user.name "github-actions"
