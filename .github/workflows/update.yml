@@ -2,7 +2,7 @@ name: Global IPTV Update (Every 8 Hours)
 
 on:
   schedule:
-    - cron: "0 */8 * * *"  # 0, 8, 16 UTC → günde 3 kez
+    - cron: "0 */8 * * *"  # günde 3 kez
   workflow_dispatch:
 
 jobs:
@@ -18,23 +18,23 @@ jobs:
       - name: Run generator
         run: docker run --rm -v ${{ github.workspace }}:/app global-iptv
 
-      - name: Show generated playlist (first 20 lines)
+      - name: Show playlist preview
         run: |
           echo "Playlist preview:"
-          head -n 20 playlist.m3u || echo "Dosya bulunamadı"
+          head -n 20 playlist.m3u || echo "No playlist found"
 
-      - name: Commit & Push safely
+      - name: Commit & Push
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          files_to_add=""
-          [ -f playlist.m3u ] && files_to_add="$files_to_add playlist.m3u"
-          [ -f stats.json ] && files_to_add="$files_to_add stats.json"
-          [ -f diff_stats.json ] && files_to_add="$files_to_add diff_stats.json"
-          if [ -n "$files_to_add" ]; then
-            git add $files_to_add
+          files=""
+          [ -f playlist.m3u ] && files="$files playlist.m3u"
+          [ -f stats.json ] && files="$files stats.json"
+          [ -f diff_stats.json ] && files="$files diff_stats.json"
+          if [ -n "$files" ]; then
+            git add $files
             git diff --cached --quiet || git commit -m "Auto IPTV update (8h + diff)"
             git push origin HEAD
           else
-            echo "❌ Dosya bulunamadı, commit yapılmadı"
+            echo "❌ No files to commit"
           fi
